@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agentic AI: do LLM ao agente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="viewport"><div class="stage" id="stage">
+
+<!-- 1 CAPA -->
+<section class="slide cover" data-notes="Abrir conectando com as duas apresentações anteriores: nos LLMs vimos que o modelo prevê o próximo token; no MCP vimos como ele alcança ferramentas. Hoje: o que acontece quando damos ao LLM um objetivo e o deixamos decidir os passos. Apontar os quatro blocos da agenda.">
+  <div class="glow"></div>
+  <div class="kicker">Apresentação 3 · Série LLMs → MCP → Agentes</div>
+  <h1>Agentic AI:<br><span>do LLM ao agente</span></h1>
+  <p class="muted" style="margin-top:18px;font-size:21px">Como um modelo de linguagem passa a decidir, agir e repetir até atingir um objetivo</p>
+  <div class="agenda">
+    <div class="card"><div class="n">01</div><div class="t">O que é um agente de IA</div></div>
+    <div class="card"><div class="n">02</div><div class="t">Autonomia: LLM + ferramenta + loop</div></div>
+    <div class="card"><div class="n">03</div><div class="t">Sistema agêntico e padrões de design</div></div>
+    <div class="card"><div class="n">04</div><div class="t">Protocolos e frameworks</div></div>
+  </div>
+</section>
+
+<!-- 2 DEFINIÇÃO -->
+<section class="slide" data-id="s2" data-notes="Definição: um agente executa tarefas de forma autônoma, projetando o próprio fluxo de trabalho com as ferramentas disponíveis. Clicar na figura do livro para ampliar e comentar; clicar fora para voltar. Depois ler o objetivo, perguntar ao grupo quais subtarefas eles fariam e só então clicar em 'Dar um objetivo'.">
+  <div class="kicker">01 · Definição</div>
+  <h2>O que é Agentic AI?</h2>
+  <div class="s2grid">
+    <div class="col" style="gap:0">
+      <p>Um sistema que <b class="hl">executa tarefas de forma autônoma</b>, projetando o próprio fluxo de trabalho com as ferramentas disponíveis. Usa o LLM para compreender, decidir, resolver problemas, interagir com ambientes externos e executar ações.</p>
+      <div class="goal" style="margin-top:18px">
+        <div class="q"><span class="tag" style="margin-right:10px">objetivo</span>“Resuma a pesquisa dos vencedores do Nobel de Física de 2024”</div>
+        <button class="btn" data-act="goal">Dar um objetivo</button>
+      </div>
+      <div class="subtasks two">
+        <div class="st"><div class="tool">subtarefa 1 · web_search</div><div>Descobrir quem venceu o prêmio de 2024</div></div>
+        <div class="st"><div class="tool">subtarefa 2 · web_search</div><div>Pesquisar as contribuições de cada vencedor</div></div>
+        <div class="st"><div class="tool">subtarefa 3 · papers + wiki</div><div>Ler artigos acadêmicos e o contexto histórico</div></div>
+        <div class="st"><div class="tool">subtarefa 4 · LLM</div><div>Sintetizar tudo em um relatório coerente</div></div>
+      </div>
+    </div>
+    <figure class="figslot">
+      <!-- Troque o arquivo em img/slide2-livro.png pela figura do livro (mesmo nome) -->
+      <div class="figframe zoomable" title="Clique para ampliar">
+        <img src="img/slide2-livro.png" alt="Figura do livro Build an AI Agent (From Scratch)" onerror="this.parentNode.classList.add('empty')">
+        <div class="figempty">
+          <div class="ic">＋</div>
+          <div><b>Espaço para a figura do livro</b></div>
+          <div class="small muted">Salve a imagem como<br><span class="mono">img/slide2-livro.png</span><br>ou clique aqui para escolher</div>
+        </div>
+      </div>
+      <figcaption>Fonte: Hur &amp; Song, Build an AI Agent (From Scratch)</figcaption>
+      <input type="file" accept="image/*" class="figpick" hidden>
+    </figure>
+  </div>
+  <div class="src">Fontes: IBM, “What is agentic AI?” · Hur &amp; Song, Build an AI Agent (From Scratch)</div>
+</section>
+
+<!-- 4 EXEMPLO PESQUISA + QUEM DECIDIU -->
+<section class="slide" data-id="s4" data-notes="Exemplo do livro (figura 1.2): o agente de pesquisa não gera a resposta só do treino. Clicar em 'Executar pesquisa': ele busca o Nobel de 2024, identifica Hinton e Hopfield, explora artigos e consulta a Wikipedia, e então sintetiza o relatório. Enquanto as fontes acendem, as quatro decisões embaixo aparecem: quem decidiu cada etapa? Nenhuma foi codificada; o LLM decidiu na hora, com base no contexto. Os cartões também podem ser clicados um a um.">
+  <div class="kicker">01 · Exemplo e autonomia</div>
+  <h2 style="margin-bottom:14px">Um agente de pesquisa em ação: quem decidiu cada etapa?</h2>
+  <div class="flow compact" id="flow4">
+    <svg class="wires" viewBox="0 0 1136 290" preserveAspectRatio="none">
+      <path id="w0" d="M200 145 L300 145"/>
+      <path id="w1" d="M530 145 C590 145 580 31 640 31"/>
+      <path id="w2" d="M530 145 C590 145 580 107 640 107"/>
+      <path id="w3" d="M530 145 C590 145 580 183 640 183"/>
+      <path id="w4" d="M530 145 C590 145 580 259 640 259"/>
+      <path id="w5" d="M910 145 L950 145"/>
+    </svg>
+    <div class="node" style="left:0;top:95px;width:200px"><b>Usuário</b>“Resuma a pesquisa dos vencedores do Nobel de Física de 2024”</div>
+    <div class="node agent" id="n4a" style="left:300px;top:105px;width:230px;text-align:center"><b>Agente LLM</b><span class="muted small">decide a próxima fonte</span><div class="r" style="color:var(--violet)" id="n4as">aguardando…</div></div>
+    <div class="node sm" id="n41" style="left:640px;top:0;width:270px"><b>Busca web <span class="mono muted">“2024 Nobel Physics”</span></b><div class="r">Hopfield e Hinton</div></div>
+    <div class="node sm" id="n42" style="left:640px;top:76px;width:270px"><b>Busca web <span class="mono muted">“Hinton, Hopfield”</span></b><div class="r">redes neurais artificiais</div></div>
+    <div class="node sm" id="n43" style="left:640px;top:152px;width:270px"><b>Artigos acadêmicos</b><div class="r">redes de Hopfield e Boltzmann</div></div>
+    <div class="node sm" id="n44" style="left:640px;top:228px;width:270px"><b>Wikipedia</b><div class="r">histórico dos autores</div></div>
+    <div class="node" id="n45" style="left:950px;top:100px;width:186px"><b>Relatório</b><span class="muted small">síntese coerente das conquistas</span><div class="r">✓ pronto</div></div>
+  </div>
+  <div class="decisions four">
+    <div class="dec"><div class="q">Qual fonte verificar primeiro?</div><div class="a">A busca geral, para achar os vencedores.</div></div>
+    <div class="dec"><div class="q">Os resultados bastaram?</div><div class="a">Não: faltavam as contribuições.</div></div>
+    <div class="dec"><div class="q">O que procurar a seguir?</div><div class="a">Artigos e o contexto na Wikipedia.</div></div>
+    <div class="dec"><div class="q">Quando começar a escrever?</div><div class="a">Quando o contexto bastou.</div></div>
+  </div>
+  <div class="row" style="align-items:center;justify-content:space-between;margin-top:12px;gap:16px">
+    <div class="callout" id="call5" style="margin:0;font-size:17px">Nenhuma dessas decisões foi codificada: o <span class="hl">LLM</span> as tomou na hora, com base no contexto.</div>
+    <div class="row" style="gap:10px;flex-shrink:0"><button class="btn ghost" data-act="reset4">Reiniciar</button><button class="btn" data-act="run4">Executar pesquisa</button></div>
+  </div>
+  <div class="src" style="padding-top:6px">Baseado na figura 1.2 de Hur &amp; Song, Build an AI Agent (From Scratch)</div>
+</section>
+
+<!-- 3 LLM x AGENTE -->
+<section class="slide" data-id="s3" data-notes="O núcleo do agente é um LLM; por isso também se chama Agente LLM. Diferença: o LLM tradicional responde só com o que aprendeu no treino; o agente chama ferramentas para buscar dados atuais. Usar a mesma pergunta da apresentação de MCP, sobre a célula 101. Perguntar ao grupo o que cada um responderia, depois clicar em 'Perguntar'.">
+  <div class="kicker">01 · Como funcionam</div>
+  <h2>LLM tradicional × Agente LLM</h2>
+  <div class="goal">
+    <div class="q"><span class="tag" style="margin-right:10px">usuário</span>“Quantos usuários estão na célula 101 agora?”</div>
+    <button class="btn" data-act="ask">Perguntar</button>
+  </div>
+  <div class="vs">
+    <div class="card">
+      <h3>LLM tradicional</h3>
+      <p class="small muted">Responde só com os dados de pré-treinamento. Conhecimento congelado na data do treino.</p>
+      <div class="bubble bad" data-b="1">Não tenho acesso a dados em tempo real. Posso explicar como esse indicador costuma ser medido…</div>
+      <div class="bubble bad" data-b="2" style="font-size:13px;color:var(--rose)">✕ sem dado atual · sem ação · resposta parcial</div>
+    </div>
+    <div class="card" style="border-color:#2f4a7a">
+      <h3>Agente LLM</h3>
+      <p class="small muted">O mesmo LLM no núcleo, mas chamando <b>tools</b> no backend para obter dados e criar subtarefas.</p>
+      <div class="bubble tool" data-b="1">→ tool: get_cell_kpis(cell_id=101)</div>
+      <div class="bubble tool" data-b="2" style="color:var(--teal)">← {"active_users": 180, "prb_util": 0.94}</div>
+      <div class="bubble good" data-b="3">A célula 101 tem <b>180 usuários ativos</b> agora, com 94% dos PRBs em uso.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 TRIADE -->
+<section class="slide" data-id="s6" data-notes="Três elementos estruturais tornam a autonomia possível. LLM: o cérebro, entende a situação e decide o que fazer. Ferramentas: estendem o espaço de ação para o mundo externo (web, código, banco de dados). Loop: a estrutura de execução que repete as decisões até o objetivo ser alcançado. Clicar em cada um.">
+  <div class="kicker">02 · Elementos que realizam a autonomia</div>
+  <h2>LLM + ferramenta + loop</h2>
+  <div class="triad">
+    <div class="tri"><div class="ic" style="background:#1e1838;color:var(--violet)">LLM</div><div class="nm">LLM</div><div class="role">o cérebro</div><div class="det">Entende a situação atual e decide o que fazer a seguir.</div></div>
+    <div class="plus">+</div>
+    <div class="tri"><div class="ic" style="background:#2a2210;color:var(--amber)">{ }</div><div class="nm">Ferramentas</div><div class="role">o espaço de ação</div><div class="det">Levam o agente ao mundo externo: pesquisa na web, execução de código, acesso a banco de dados.</div></div>
+    <div class="plus">+</div>
+    <div class="tri"><div class="ic" style="background:#0f2a27;color:var(--teal)">↻</div><div class="nm">Loop</div><div class="role">o tempo</div><div class="det">Repete as decisões até que o objetivo seja alcançado.</div></div>
+  </div>
+  <div class="summary-line">O LLM <b>decide</b>, as ferramentas <b>expandem a ação</b> e o loop <b>desdobra tudo ao longo do tempo</b>.</div>
+</section>
+
+<!-- 7 LOOP -->
+<section class="slide" data-id="s7" data-notes="Figura 1.3: o mesmo exemplo visto pelo loop. O loop é necessário porque não dá para saber de antemão quantas etapas ou quais ferramentas serão usadas. Clicar em 'Próxima etapa' várias vezes: a cada volta uma ferramenta roda e o resultado entra no contexto. Na 4ª iteração o LLM decide parar e gera o relatório. Fechar com: raciocinar, agir, observar. No fim, clicar na figura do livro (LLM agent's decision loop) para ampliar; clicar fora para voltar.">
+  <div class="kicker">02 · O loop do agente</div>
+  <h2 style="margin-bottom:12px">Como funciona o loop do agente</h2>
+  <div class="loopwrap three">
+    <div class="loopscale"><div class="loop">
+      <svg viewBox="0 0 470 470"><circle cx="235" cy="235" r="165" fill="none" stroke="#2a3552" stroke-width="2" stroke-dasharray="4 6"/>
+        <path d="M352 118 l10 -4 l-2 10" fill="none" stroke="#5eead4" stroke-width="2"/>
+        <path d="M352 352 l4 10 l-10 -2" fill="none" stroke="#5eead4" stroke-width="2"/>
+        <path d="M118 352 l-10 4 l2 -10" fill="none" stroke="#5eead4" stroke-width="2"/>
+        <path d="M118 118 l-4 -10 l10 2" fill="none" stroke="#5eead4" stroke-width="2"/>
+      </svg>
+      <div class="lnode" id="l1" style="left:140px;top:10px"><div class="n">1 · RACIOCINAR</div><div class="t">LLM avalia o contexto e escolhe a ferramenta</div></div>
+      <div class="lnode" id="l2" style="left:280px;top:200px"><div class="n">2 · AGIR</div><div class="t">A ferramenta selecionada é executada</div></div>
+      <div class="lnode" id="l3" style="left:140px;top:385px"><div class="n">3 · OBSERVAR</div><div class="t">O resultado volta ao contexto do LLM</div></div>
+      <div class="lnode" id="l4" style="left:0;top:200px"><div class="n">4 · DECIDIR</div><div class="t">Continuar ou parar?</div></div>
+      <div class="lcenter"><div class="lb">ITERAÇÃO</div><div class="it" id="it7">0</div></div>
+    </div></div>
+    <div class="ctx">
+      <div class="status" id="st7">Clique em “Próxima etapa” para começar.</div>
+      <div class="ctxbox" id="ctx7"><div class="chip q">pergunta: resumir a pesquisa dos vencedores do Nobel de Física de 2024</div></div>
+      <div class="ctrls"><button class="btn ghost" data-act="reset7">Reiniciar</button><button class="btn" data-act="step7">Próxima etapa</button></div>
+    </div>
+    <figure class="figslot">
+      <!-- Troque o arquivo img/slide6-loop.png pela figura "LLM agent's decision loop" do livro (mesmo nome) -->
+      <div class="figframe zoomable" title="Clique para ampliar">
+        <img src="img/slide6-loop.png" alt="LLM agent's decision loop, de Build an AI Agent (From Scratch)" onerror="this.parentNode.classList.add('empty')">
+        <div class="figempty">
+          <div class="ic">＋</div>
+          <div><b>LLM agent’s decision loop</b></div>
+          <div class="small muted">Salve a imagem como<br><span class="mono">img/slide6-loop.png</span><br>ou clique aqui para escolher</div>
+        </div>
+      </div>
+      <figcaption>Fonte: Hur &amp; Song, Build an AI Agent (From Scratch)</figcaption>
+      <input type="file" accept="image/*" class="figpick" hidden>
+    </figure>
+  </div>
+</section>
+
+<!-- 8 SISTEMA AGÊNTICO -->
+<section class="slide" data-id="s8" data-notes="Sistema agêntico é todo o ecossistema que permite ao agente operar: modelo de fundação, ferramentas, memória, orquestração e infraestrutura. Clicar em cada bloco; o painel à direita mostra a frase-resumo. Ordem sugerida: LLM, Ferramentas, Memória, Orquestração, Infraestrutura.">
+  <div class="kicker">03 · Componentes e arquitetura</div>
+  <h2>Sistema agêntico</h2>
+  <div class="sys">
+    <div class="arch">
+      <div class="comp orch" data-c="orch"><div class="nm">Orquestração</div><div class="mt">o maestro</div></div>
+      <div class="comp" data-c="tools"><div class="nm">Ferramentas</div><div class="mt">braços e mãos</div></div>
+      <div class="comp brain on" data-c="llm"><div class="nm">Modelo de fundação</div><div class="mt">LLM · o cérebro</div></div>
+      <div class="comp" data-c="mem"><div class="nm">Memória</div><div class="mt">continuidade</div></div>
+      <div class="comp infra" data-c="infra"><div class="nm">Infraestrutura de suporte</div><div class="mt">a fundação operacional</div></div>
+    </div>
+    <div class="detail">
+      <div class="tag" id="d8t">Modelo de fundação</div>
+      <div class="one" id="d8o">O “cérebro” e motor de raciocínio do sistema.</div>
+      <p id="d8p">Interpreta o contexto, compreende linguagem natural e toma decisões. Em vez de só gerar texto, analisa o cenário e decide dinamicamente quais passos seguir.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9 REACT -->
+<section class="slide" data-id="s9" data-notes="Padrões de design de agentes focados em raciocínio e ação. ReAct: Pensamento, Ação, Observação, em ciclo. Clicar em 'Próximo passo' e mostrar o contador de chamadas ao LLM subindo: cada pensamento espera a observação anterior. Vantagem: dinâmico, muda de estratégia. Desvantagem: lento e caro.">
+  <div class="kicker">03 · Padrões de design de agentes</div>
+  <h2>ReAct · Reason and Act</h2>
+  <div class="pattern">
+    <div class="col" style="min-height:0">
+      <div class="log grow" id="log9">
+        <div class="ln"><span class="k-us">Pergunta:</span> Resuma a pesquisa dos vencedores do Nobel de Física de 2024.</div>
+        <div class="ln"><span class="k-th">Pensamento 1:</span> Preciso saber quem venceu.</div>
+        <div class="ln"><span class="k-ac">Ação 1:</span> web_search("2024 Nobel Physics")</div>
+        <div class="ln"><span class="k-ob">Observação 1:</span> John J. Hopfield e Geoffrey Hinton.</div>
+        <div class="ln"><span class="k-th">Pensamento 2:</span> Agora preciso das contribuições de cada um.</div>
+        <div class="ln"><span class="k-ac">Ação 2:</span> search_papers("Hopfield network", "Boltzmann machine")</div>
+        <div class="ln"><span class="k-ob">Observação 2:</span> Artigos sobre memória associativa e aprendizado em redes.</div>
+        <div class="ln"><span class="k-th">Pensamento 3:</span> Falta o contexto histórico.</div>
+        <div class="ln"><span class="k-ac">Ação 3:</span> wikipedia("Hopfield"), wikipedia("Hinton")</div>
+        <div class="ln"><span class="k-ob">Observação 3:</span> Biografias e linha do tempo das descobertas.</div>
+        <div class="ln"><span class="k-th">Pensamento 4:</span> Tenho o suficiente.</div>
+        <div class="ln"><span class="k-fi">Resposta final:</span> relatório com as conquistas dos vencedores.</div>
+      </div>
+      <div class="ctrls" style="margin-top:0"><button class="btn ghost" data-act="reset9">Reiniciar</button><button class="btn" data-act="step9">Próximo passo</button></div>
+    </div>
+    <div class="meter">
+      <div class="card"><div class="small muted">chamadas sequenciais ao LLM</div><div class="big" id="c9">0</div></div>
+      <div class="pc">
+        <div class="card pro"><h3>Vantagem</h3><p>Altamente dinâmico: se a Ação 1 trouxer algo inesperado, muda de estratégia na Ação 2.</p></div>
+        <div class="card con"><h3>Desvantagem</h3><p>Lento e caro: espera cada ferramenta, faz muitas chamadas sequenciais e gasta mais tokens.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 REWOO -->
+<section class="slide" data-id="s10" data-notes="ReWOO resolve os gargalos do ReAct: o LLM desenha todo o plano de uma vez, com lacunas (#E1, #E2...). Uma camada de código executa as ferramentas, às vezes em paralelo, e o LLM só sintetiza no fim. Clicar em 'Planejar', depois 'Executar'. Reparar: #E2 e #E3 rodam juntos porque só dependem de #E1. Comparar as barras: 2 chamadas contra 4. Desvantagem: se #E1 falhar, o plano inteiro pode falhar.">
+  <div class="kicker">03 · Padrões de design de agentes</div>
+  <h2>ReWOO · Reasoning Without Observation</h2>
+  <div class="pattern">
+    <div class="col">
+      <div class="plan">
+        <div class="lane"><div class="lbl">PLANNER<br>LLM</div><div class="ev planner" id="p10">
+          Plano: #E1 = web_search("2024 Nobel Physics")<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#E2 = search_papers(#E1)<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#E3 = wikipedia(#E1)</div></div>
+        <div class="lane"><div class="lbl">WORKER<br>código</div>
+          <div class="ev worker" id="e1">#E1 web_search<div class="res">→ Hopfield, Hinton</div></div>
+          <div class="col" style="flex:1;gap:8px">
+            <div class="ev worker" id="e2">#E2 search_papers ∥<div class="res">→ artigos</div></div>
+            <div class="ev worker" id="e3">#E3 wikipedia ∥<div class="res">→ contexto</div></div>
+          </div>
+        </div>
+        <div class="lane"><div class="lbl">SOLVER<br>LLM</div><div class="ev solver" id="s10s">Sintetiza #E1 + #E2 + #E3 → relatório final<div class="res">✓ resposta</div></div></div>
+      </div>
+      <div class="ctrls"><button class="btn ghost" data-act="reset10">Reiniciar</button><button class="btn" data-act="plan10">Planejar</button><button class="btn" data-act="exec10" disabled>Executar</button></div>
+    </div>
+    <div class="meter">
+      <div class="card"><div class="small muted">chamadas ao LLM, mesma tarefa</div>
+        <div class="bars">
+          <div class="bar"><span style="width:62px">ReAct</span><div class="b" style="width:200px;background:var(--rose)"></div>4</div>
+          <div class="bar"><span style="width:62px">ReWOO</span><div class="b" id="b10" style="width:0;background:var(--green)"></div><span id="b10n">0</span></div>
+        </div></div>
+      <div class="pc">
+        <div class="card pro"><h3>Vantagem</h3><p>Mais rápido e barato: menos chamadas ao LLM e ferramentas em paralelo.</p></div>
+        <div class="card con"><h3>Desvantagem</h3><p>Menos flexível: se #E1 falhar ou mudar o rumo do problema, o plano pré-determinado pode falhar.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 PROTOCOLOS -->
+<section class="slide" data-id="s11" data-notes="Protocolos definem a sintaxe, a estrutura e a sequência das mensagens entre agentes, e entre agentes e outros sistemas, além de convenções como papéis e quando responder. Três benefícios: interoperabilidade, menos complexidade, padronização. Mostrar o mapa: a maioria é agente-agente; AG-UI liga agente e usuário; MCP liga agente e ferramentas. Alertar: muitos ainda estão em fase inicial.">
+  <div class="kicker">04 · Protocolos</div>
+  <h2>O que são protocolos de agentes de IA?</h2>
+  <p style="max-width:1080px">Padrões de comunicação entre agentes, e entre agentes e outros sistemas: definem <b>sintaxe, estrutura e sequência</b> das mensagens, os papéis de cada agente e quando e como responder.</p>
+  <div class="pmap" style="margin-top:20px">
+    <div class="pgroup"><div class="hd hl">Agente ↔ agente</div><span class="pill focus">A2A</span><span class="pill">ACP</span><span class="pill">ANP</span><span class="pill">Agora</span><span class="pill">LMOS</span></div>
+    <div class="pgroup"><div class="hd hl2">Agente ↔ usuário</div><span class="pill">AG-UI</span></div>
+    <div class="pgroup"><div class="hd hl3">Agente ↔ ferramentas e contexto</div><span class="pill focus">MCP</span></div>
+  </div>
+  <div class="benefits">
+    <div class="card"><b>Interoperabilidade</b><p class="small muted">agentes de origens diferentes conversam</p></div>
+    <div class="card"><b>Menos complexidade</b><p class="small muted">no desenvolvimento de agentes</p></div>
+    <div class="card"><b>Padronização</b><p class="small muted">e integração mais fluida</p></div>
+  </div>
+  <div class="note">Muitos protocolos ainda estão em fase inicial: quem adota hoje age como pioneiro, com especificações em evolução.</div>
+  <div class="src">Fonte: IBM, “What are AI agent protocols?”</div>
+</section>
+
+<!-- 12 A2A -->
+<section class="slide" data-id="s12" data-notes="A2A: padrão aberto para comunicação entre agentes, lançado pelo Google e hoje gerenciado pela Linux Foundation. Modelo cliente-servidor em três etapas; clicar em 'Próxima etapa'. Descoberta, autenticação (o agente remoto autoriza e concede as permissões), comunicação via HTTPS com JSON-RPC 2.0, o mesmo formato do MCP.">
+  <div class="kicker">04 · Protocolo agente ↔ agente</div>
+  <div class="row" style="align-items:center;gap:14px;margin-bottom:22px"><h2 style="margin:0">A2A · Agent2Agent</h2><span class="tag">Google → Linux Foundation</span></div>
+  <p style="margin-bottom:20px">Padrão aberto para comunicação entre agentes de IA, no modelo <b class="hl">cliente-servidor</b>, com um fluxo de três etapas.</p>
+  <div class="a2a">
+    <div class="steps">
+      <div class="step" id="a1"><div class="num">1</div><div><div class="tt">Descoberta</div><div class="dd">Um usuário ou outro agente pede uma tarefa ao agente cliente, que consulta agentes remotos para achar a melhor opção.</div></div></div>
+      <div class="step" id="a2"><div class="num">2</div><div><div class="tt">Autenticação</div><div class="dd">Escolhido o agente remoto, o cliente se autentica; o remoto autoriza e concede as permissões de acesso.</div></div></div>
+      <div class="step" id="a3"><div class="num">3</div><div><div class="tt">Comunicação</div><div class="dd">O cliente envia a tarefa e o remoto a processa, via HTTPS, com JSON-RPC 2.0 na troca de dados.</div></div></div>
+    </div>
+    <div class="col">
+      <div class="mcpd">
+        <div class="mbox"><b>Agente cliente</b><span>envia a tarefa</span></div><div class="arrow">⇄</div>
+        <div class="mbox" style="border-color:#1f5a4f"><b>Agente remoto</b><span>autoriza e processa</span></div>
+      </div>
+      <pre class="json" id="j12" style="opacity:.25;transition:opacity .3s">{ <span class="j-k">"jsonrpc"</span>: <span class="j-s">"2.0"</span>, <span class="j-k">"id"</span>: <span class="j-n">1</span>,
+  <span class="j-k">"method"</span>: <span class="j-s">"message/send"</span>,
+  <span class="j-k">"params"</span>: { <span class="j-k">"message"</span>: { <span class="j-k">"role"</span>: <span class="j-s">"user"</span>,
+    <span class="j-k">"parts"</span>: [{ <span class="j-k">"text"</span>: <span class="j-s">"Analise a célula 101"</span> }] } } }</pre>
+      <p class="small muted">HTTPS para a segurança da transmissão · JSON-RPC 2.0 como formato</p>
+      <div class="ctrls" style="margin-top:0"><button class="btn ghost" data-act="reset12">Reiniciar</button><button class="btn" data-act="step12">Próxima etapa</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 MCP -->
+<section class="slide" data-notes="Recapitular a apresentação anterior em dois minutos. MCP, introduzido pela Anthropic, padroniza como o agente obtém contexto de ferramentas e dados. Três elementos: Host com a orquestração, Client que estrutura as requisições, Server que expõe as ferramentas. JSON-RPC 2.0, via stdio no local ou Streamable HTTP no remoto (que pode usar SSE para streaming). Atualização: em dezembro de 2025 foi doado à Agentic AI Foundation, da Linux Foundation.">
+  <div class="kicker">04 · Protocolo agente ↔ ferramentas</div>
+  <h2>MCP · Model Context Protocol</h2>
+  <div class="mcp">
+    <div class="col">
+      <p>Introduzido pela Anthropic, padroniza como modelos de IA obtêm o contexto necessário: APIs, bancos de dados, arquivos, buscas na web e outras fontes.</p>
+      <div class="mcpd" style="margin-top:10px">
+        <div class="mbox"><b>Host</b><span>orquestração · vários clients</span></div><div class="arrow">→</div>
+        <div class="mbox"><b>Client</b><span>1:1 com um server · sessões</span></div><div class="arrow">⇄</div>
+        <div class="mbox" style="border-color:#1f5a4f"><b>Server</b><span>expõe as ferramentas</span></div>
+      </div>
+      <div class="row" style="gap:12px">
+        <div class="card grow"><h3 class="mono" style="font-size:14px">stdio</h3><p>local, leve e síncrono</p></div>
+        <div class="card grow"><h3 class="mono" style="font-size:14px">Streamable HTTP</h3><p>remoto, com streaming via SSE</p></div>
+      </div>
+      <p class="small muted">Mensagens em JSON-RPC 2.0 nos dois transportes.</p>
+    </div>
+    <div class="col">
+      <div class="card"><h3>Onde o MCP entra no agente</h3><p>Ele é a camada que conecta as <b>Ferramentas</b> do sistema agêntico ao mundo externo. O A2A liga agentes entre si; o MCP liga cada agente às suas ferramentas.</p></div>
+      <div class="card" style="border-color:#5a4614"><span class="badge">ATUALIZAÇÃO · DEZ/2025</span><p style="margin-top:8px">A Anthropic doou o MCP à Agentic AI Foundation, um fundo da Linux Foundation. Em 2026 o A2A entrou na mesma fundação.</p></div>
+      <div class="card"><p class="muted">Detalhes na apresentação anterior: Tools, Resources, Prompts e o fluxo da célula 101.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 FRAMEWORKS -->
+<section class="slide" data-id="s14" data-notes="Quatro frameworks consolidados, cada um para um tipo de complexidade. Clicar nas abas. LangGraph: grafos explícitos, bom para controle de fluxo. AutoGen: conversas multiagente; atualização: está em modo de manutenção desde out/2025 e o sucessor é o Microsoft Agent Framework. CrewAI: prototipagem rápida com equipes e tarefas. OpenAI Agents SDK: rápido no ecossistema OpenAI, mas pouco portável. Perguntar: qual deles usaríamos para um rApp com controle de fluxo auditável?">
+  <div class="kicker">04 · Frameworks</div>
+  <h2>Frameworks de desenvolvimento de agentes</h2>
+  <div class="tabs">
+    <div class="tab on" data-fw="0">LangGraph</div><div class="tab" data-fw="1">AutoGen</div><div class="tab" data-fw="2">CrewAI</div><div class="tab" data-fw="3">OpenAI Agents SDK</div>
+  </div>
+  <div class="fw on">
+    <div class="card pro"><h3 class="hl">Pontos fortes</h3><p>Orquestração modular baseada em grafos direcionados: nós contêm lógica ou LLMs, arestas gerenciam o fluxo. Suporte nativo a fluxos assíncronos, ciclos e retentativas.</p></div>
+    <div class="card con"><h3 style="color:var(--rose)">Trade-offs</h3><p>Exige lógica customizada para planejamento avançado e memória.</p></div>
+    <div class="card"><h3 class="hl2">Recomendado para</h3><p>Sistemas robustos de agente único ou multiagentes leves, com controle de fluxo explícito e inspecionável.</p></div>
+  </div>
+  <div class="fw">
+    <div class="card pro"><h3 class="hl">Pontos fortes</h3><p>Orquestração multiagente avançada, atribuição dinâmica de papéis e interação por troca de mensagens.</p></div>
+    <div class="card con"><h3 style="color:var(--rose)">Trade-offs</h3><p>Pode ser complexo e pesado para casos de uso simples.</p></div>
+    <div class="card"><h3 class="hl2">Recomendado para</h3><p>Diálogos complexos entre múltiplos agentes, como gerente-trabalhador e self-reflection.</p></div>
+  </div>
+  <div class="fw">
+    <div class="card pro"><h3 class="hl">Pontos fortes</h3><p>Curva de aprendizado rápida, com abstrações intuitivas de “equipe” (crew) e “tarefas” (tasks).</p></div>
+    <div class="card con"><h3 style="color:var(--rose)">Trade-offs</h3><p>Controle limitado sobre os mecanismos internos de orquestração.</p></div>
+    <div class="card"><h3 class="hl2">Recomendado para</h3><p>Prototipagem rápida e agentes centrados em tarefas humanas, como assistentes e suporte.</p></div>
+  </div>
+  <div class="fw">
+    <div class="card pro"><h3 class="hl">Pontos fortes</h3><p>Integração direta com o ecossistema OpenAI: chamadas de função seguras, primitivas de memória e roteamento de ferramentas.</p></div>
+    <div class="card con"><h3 style="color:var(--rose)">Trade-offs</h3><p>Acoplado à infraestrutura da OpenAI, o que reduz a portabilidade para outras pilhas e modelos open source.</p></div>
+    <div class="card"><h3 class="hl2">Recomendado para</h3><p>Equipes que operam só no ecossistema de APIs da OpenAI e querem implantação rápida.</p></div>
+  </div>
+  <div class="note fwnote" id="fwnote" style="display:none"><b>Atualização:</b> o AutoGen está em modo de manutenção desde outubro de 2025. A Microsoft recomenda o Microsoft Agent Framework, seu sucessor, para novos projetos.</div>
+</section>
+
+<!-- 15 FECHAMENTO -->
+<section class="slide cover" data-notes="Fechar a série: LLMs preveem tokens, MCP dá acesso, agentes dão autonomia. Três ideias para levar. Agradecer e abrir para perguntas.">
+  <div class="kicker">Encerramento</div>
+  <h2>Para levar para casa</h2>
+  <div class="take">
+    <div class="card"><div class="n">01</div><p><b>Agente = LLM + ferramenta + loop.</b> O LLM decide, as ferramentas agem e o loop repete até o objetivo.</p></div>
+    <div class="card"><div class="n">02</div><p><b>ReAct ou ReWOO</b> é uma escolha entre flexibilidade e custo: observar a cada passo ou planejar tudo antes.</p></div>
+    <div class="card"><div class="n">03</div><p><b>Protocolos padronizam as conexões:</b> MCP liga agente e ferramentas; A2A liga agentes entre si.</p></div>
+  </div>
+  <p class="muted" style="margin-top:36px;font-size:22px;text-align:center">LLMs <span class="hl">preveem</span> · MCP <span class="hl">conecta</span> · Agentes <span class="hl">decidem e agem</span></p>
+  <p style="margin-top:22px;text-align:center;font-size:26px;font-weight:700">Obrigado! Perguntas?</p>
+</section>
+
+<div class="footer"><span>Agentic AI · do LLM ao agente</span><span id="pg">1 / 14</span></div>
+<div class="progress" id="prog"></div>
+</div></div>
+
+<div class="lightbox" id="lightbox"><img id="lbimg" alt=""><div class="lbhint">clique fora da imagem ou Esc para voltar</div></div>
+<div class="notes" id="notes"><div class="h">NOTAS DO APRESENTADOR</div><div id="notesTxt"></div></div>
+<div class="hint">← → navegar · N notas</div>
+<div class="nav"><button id="prev">‹</button><button id="next">›</button></div>
+
+<script src="script.js"></script>
+</body>
+</html>
